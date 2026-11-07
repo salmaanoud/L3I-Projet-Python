@@ -7,10 +7,12 @@ Nom : playlist_xspf.py
 Role : generation, lecture et validation de playlists au format XSPF
        (format texte/XML standard, cf https://xspf.org/), y compris la
        playlist par defaut regroupant tous les MP3/FLAC d'un dossier
-       explore recursivement. Le fichier XSPF est construit et relu a la
-       main, avec de simples chaines de caracteres, sans librairie XML.
+       explore recursivement, avec leurs vraies metadonnees ID3/Vorbis
+       quand elles sont disponibles (module metadata.py). Le fichier XSPF
+       est construit et relu a la main, avec de simples chaines de
+       caracteres, sans librairie XML.
 Auteur : LAIFAOUI Ines
-Version : 1.0 - 05/11/2026
+Version : 1.1 - 07/11/2026
 Licence : usage pedagogique (L3)
 Compilation : aucune (Python interprete)
 Execution : python3 playlist_xspf.py <dossier>
@@ -19,7 +21,15 @@ Execution : python3 playlist_xspf.py <dossier>
 import os
 import sys
 
-from explorateur import lister_fichiers_musicaux
+# import relatif car explorateur.py et metadata.py sont dans le meme
+# package (library) ; le except gere le cas ou on lance ce fichier tout
+# seul (python3 playlist_xspf.py), sans passer par le package
+try:
+    from .explorateur import lister_fichiers_musicaux
+    from .metadata import extract_metadata
+except ImportError:
+    from explorateur import lister_fichiers_musicaux
+    from metadata import extract_metadata
 
 ESPACE_DE_NOMS_XSPF = "http://xspf.org/ns/0/"
 
@@ -124,13 +134,41 @@ def creer_playlist(pistes, chemin_sortie):
         fichier.write("\n".join(lignes) + "\n")
 
 
+def piste_depuis_fichier(chemin):
+    """
+    Role : construit le dictionnaire d'une piste pour un fichier audio, en
+    utilisant ses vraies metadonnees (titre, artiste, album) quand elles
+    sont lisibles, et en se rabattant sur le nom du fichier comme titre si
+    le fichier est illisible ou sans metadonnees.
+
+    Arguments :
+        chemin (str) : chemin du fichier audio
+
+    Valeur renvoyee :
+        dict : une piste au format attendu par creer_playlist (cles
+            "location", "title", et "creator"/"album" si disponibles)
+    """
+    try:
+        morceau = extract_metadata(chemin)
+    except Exception:
+        # un fichier abime ou illisible ne doit pas bloquer la generation
+        # de toute la playlist, on garde juste le nom du fichier comme titre
+        return {"location": chemin, "title": os.path.basename(chemin)}
+
+    piste = {"location": chemin, "title": morceau.title or os.path.basename(chemin)}
+    if morceau.artist:
+        piste["creator"] = morceau.artist
+    if morceau.album:
+        piste["album"] = morceau.album
+    return piste
+
+
 def generer_playlist_par_defaut(dossier, chemin_sortie="default_playlist.xspf"):
     """
     Role : genere la playlist par defaut demandee dans le sujet : tous
-    les MP3/FLAC trouves recursivement dans "dossier", avec pour
-    l'instant juste le nom du fichier comme titre (pas encore les vraies
-    metadonnees ID3/Vorbis, qui viendront se brancher ici une fois le
-    module d'extraction des metadonnees pret).
+    les MP3/FLAC trouves recursivement dans "dossier", avec leurs vraies
+    metadonnees ID3/Vorbis (titre, artiste, album) quand elles sont
+    disponibles, recuperees via extract_metadata (module metadata.py).
 
     Arguments :
         dossier (str) : dossier a explorer recursivement
@@ -141,10 +179,7 @@ def generer_playlist_par_defaut(dossier, chemin_sortie="default_playlist.xspf"):
         str : le chemin du fichier .xspf genere (= chemin_sortie)
     """
     fichiers = lister_fichiers_musicaux(dossier)
-    pistes = [
-        {"location": chemin, "title": os.path.basename(chemin)}
-        for chemin in fichiers
-    ]
+    pistes = [piste_depuis_fichier(chemin) for chemin in fichiers]
     creer_playlist(pistes, chemin_sortie)
     return chemin_sortie
 
@@ -225,7 +260,7 @@ def valider_playlist(chemin):
     erreurs = []
 
     try:
-        with open(chemin, encoding="UTF-8") as fichier:
+        with open(chemin, encoding ="UTF-8") as fichier:
             contenu = fichier.read()
     except OSError as erreur:
         return False, [f"impossible de lire le fichier : {erreur}"]
@@ -256,12 +291,12 @@ if __name__ == "__main__":
     fichier_genere = generer_playlist_par_defaut(dossier_cible)
     print(f"Playlist par defaut generee : {fichier_genere}")
 
-    valide, erreurs = valider_playlist(fichier_genere)
-    if valide:
+    est_valide, liste_erreurs = valider_playlist(fichier_genere)
+    if est_valide:
         print("La playlist generee est valide.")
     else:
-        print("Erreurs trouvees dans la playlist :", erreurs)
+        print("Erreurs trouvees dans la playlist :", liste_erreurs)
 
     print("\nContenu relu depuis le fichier :")
-    for piste in lire_playlist(fichier_genere):
-        print(" -", piste)
+    for piste_lue in lire_playlist(fichier_genere):
+        print(" -", piste_lue)
