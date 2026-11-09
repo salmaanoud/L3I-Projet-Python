@@ -1,9 +1,6 @@
-#!/usr/bin/python3
-# -*- coding: UTF-8 -*-
+
 """
 playlist_xspf.py
-
-Nom : playlist_xspf.py
 Role : generation, lecture et validation de playlists au format XSPF
        (format texte/XML standard, cf https://xspf.org/), y compris la
        playlist par defaut regroupant tous les MP3/FLAC d'un dossier
@@ -11,11 +8,6 @@ Role : generation, lecture et validation de playlists au format XSPF
        quand elles sont disponibles (module metadata.py). Le fichier XSPF
        est construit et relu a la main, avec de simples chaines de
        caracteres, sans librairie XML.
-Auteur : LAIFAOUI Ines
-Version : 1.1 - 07/11/2026
-Licence : usage pedagogique (L3)
-Compilation : aucune (Python interprete)
-Execution : python3 playlist_xspf.py <dossier>
 """
 
 import os
