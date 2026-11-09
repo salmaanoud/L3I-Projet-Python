@@ -13,7 +13,10 @@ def extract_metadata(path):
     if ext not in EXTENSIONS_SUPPORTEES:
         raise ValueError(f"Format non supporté : {ext}")
 
-    audio = mutagen.File(path, easy=True)
+    try:
+        audio = mutagen.File(path, easy=True)
+    except mutagen.MutagenError as erreur:
+        raise ValueError(f"Fichier audio illisible ou corrompu : {path}") from erreur
     if audio is None:
         raise ValueError(f"Fichier audio illisible : {path}")
 
