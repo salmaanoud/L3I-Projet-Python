@@ -7,9 +7,9 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import des fonctions du projet
-from explorateur import lister_fichiers_musicaux
+from library.explorateur import lister_fichiers_musicaux
 from library.metadata import extract_metadata
-
+from library.playlist_xspf import generer_playlist_par_defaut
 
 # Classe de l'interface graphique
 class MusicGUI:
@@ -27,6 +27,14 @@ class MusicGUI:
             command=self.choisir_dossier
         )
         self.bouton_dossier.pack(pady=20)
+
+        # Bouton pour generer la playlist par defaut
+        self.bouton_playlist = tk.Button(
+            self.fenetre,
+            text="Generer la playlist par defaut",
+            command=self.generer_playlist
+        )
+        self.bouton_playlist.pack(pady=5)
 
         # Creation de l'arborescence des fichiers musicaux
         self.tableau = ttk.Treeview(
@@ -128,6 +136,29 @@ class MusicGUI:
 
             # Reinitialisation des informations
             self.effacer_metadonnees()
+
+    # Generation de la playlist par defaut
+    def generer_playlist(self):
+        dossier = filedialog.askdirectory(
+            title="Choisir un dossier pour la playlist"
+        )
+
+        if not dossier:
+            return
+
+        try:
+            chemin_playlist = generer_playlist_par_defaut(dossier)
+
+            messagebox.showinfo(
+                "Playlist generee",
+                f"La playlist a ete creee :\n{os.path.abspath(chemin_playlist)}"
+            )
+
+        except Exception as erreur:
+            messagebox.showerror(
+                "Erreur",
+                f"Impossible de generer la playlist :\n{erreur}"
+            )
 
     # Methode pour effacer les metadonnees
     def effacer_metadonnees(self):
