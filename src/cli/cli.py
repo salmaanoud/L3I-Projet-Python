@@ -16,6 +16,8 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from library.metadata import extract_metadata  # noqa: E402
+from library.explorateur import lister_fichiers_musicaux  # noqa: E402
+from library.playlist_xspf import generer_playlist_par_defaut  # noqa: E402
 
 
 def format_duree(secondes):
@@ -78,14 +80,7 @@ def traiter_dossier(dossier, sortie):
         print(f"Erreur : le dossier « {dossier} » n'existe pas.", file=sys.stderr)
         return 1
 
-    # Ces fonctions sont écrites par Ines (exploration + playlists XSPF).
-    try:
-        from library.explorer import scan_directory
-    except ImportError:
-        print("Le parcours de dossier (-d) n'est pas encore disponible.", file=sys.stderr)
-        return 1
-
-    chemins = scan_directory(dossier)
+    chemins = lister_fichiers_musicaux(dossier)
     tracks = []
     for chemin in chemins:
         try:
@@ -98,12 +93,7 @@ def traiter_dossier(dossier, sortie):
         afficher_track(track)
 
     if sortie:
-        try:
-            from library.playlist import save_playlist
-        except ImportError:
-            print("La sauvegarde XSPF (-o) n'est pas encore disponible.", file=sys.stderr)
-            return 1
-        save_playlist(tracks, sortie)
+        generer_playlist_par_defaut(dossier, sortie)
         print(f"Playlist enregistrée dans « {sortie} ».")
     return 0
 
