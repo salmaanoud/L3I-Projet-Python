@@ -6,6 +6,7 @@ Interface graphique du gestionnaire de fichiers musicaux MP3 et FLAC.
 
 Ce module permet :
 - de choisir un dossier contenant des fichiers musicaux ;
+- de choisir directement un fichier MP3 ou FLAC ;
 - de parcourir son arborescence et ses sous-dossiers ;
 - d'afficher les metadonnees des morceaux ;
 - de generer une playlist au format XSPF.
@@ -65,7 +66,15 @@ class MusicGUI:
             text="Choisir un dossier",
             command=self.choisir_dossier
         )
-        self.bouton_dossier.pack(pady=20)
+        self.bouton_dossier.pack(pady=10)
+
+        # Bouton pour choisir directement un morceau
+        self.bouton_morceau = tk.Button(
+            self.fenetre,
+            text="Choisir un morceau",
+            command=self.choisir_morceau
+        )
+        self.bouton_morceau.pack(pady=5)
 
         # Bouton pour generer la playlist par defaut
         self.bouton_playlist = tk.Button(
@@ -160,6 +169,64 @@ class MusicGUI:
             text="Duree :"
         )
         self.label_duree.pack(anchor="w", padx=10, pady=3)
+
+    def choisir_morceau(self):
+        """
+        Permet de choisir directement un fichier MP3 ou FLAC.
+
+        Affiche le fichier choisi dans le tableau, puis ses metadonnees
+        dans la zone d'informations.
+
+        Returns:
+            None
+        """
+        fichier = filedialog.askopenfilename(
+            title="Choisir un morceau",
+            filetypes=[
+                ("Fichiers musicaux", "*.mp3 *.flac"),
+                ("Fichiers MP3", "*.mp3"),
+                ("Fichiers FLAC", "*.flac")
+            ]
+        )
+
+        if not fichier:
+            return
+
+        # Recuperation des metadonnees du morceau
+        try:
+            morceau = extract_metadata(fichier)
+            titre = morceau.title or ""
+            artiste = morceau.artist or ""
+            album = morceau.album or ""
+            minutes = int(morceau.duration // 60)
+            secondes = int(morceau.duration % 60)
+            duree = f"{minutes}:{secondes:02d}"
+        except (ValueError, OSError):
+            titre = ""
+            artiste = ""
+            album = ""
+            duree = ""
+
+        # Remplacement du contenu du tableau par le morceau choisi
+        for ligne in self.tableau.get_children():
+            self.tableau.delete(ligne)
+
+        self.effacer_metadonnees()
+        self.tableau.insert(
+            "",
+            "end",
+            iid=fichier,
+            text=os.path.basename(fichier),
+            values=(
+                os.path.splitext(fichier)[1].lower(),
+                titre,
+                artiste,
+                album,
+                duree
+            )
+        )
+        self.tableau.selection_set(fichier)
+        self.afficher_metadonnees(None)
 
     def choisir_dossier(self):
         """
