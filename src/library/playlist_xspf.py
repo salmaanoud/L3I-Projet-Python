@@ -142,7 +142,7 @@ def piste_depuis_fichier(chemin):
     """
     try:
         morceau = extract_metadata(chemin)
-    except Exception:
+    except ValueError:
         # un fichier abime ou illisible ne doit pas bloquer la generation
         # de toute la playlist, on garde juste le nom du fichier comme titre
         return {"location": chemin, "title": os.path.basename(chemin)}
