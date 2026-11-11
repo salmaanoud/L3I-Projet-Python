@@ -107,7 +107,7 @@ class TestMusicGUI(unittest.TestCase):
             self.application.label_duree.cget("text"),
             "Duree : 2:05"
         )
-        
+
     def test_generer_playlist(self):
         # Simulation du choix du dossier et du fichier de sortie
         from unittest.mock import patch
@@ -139,7 +139,51 @@ class TestMusicGUI(unittest.TestCase):
 
             # Verification du message de confirmation
             mock_message.assert_called_once()
+    
+    def test_choisir_morceau_annule(self):
+        # Simulation de l'annulation du choix d'un morceau
+        from unittest.mock import patch
 
+        with patch("gui.gui.filedialog.askopenfilename", return_value=""):
+            self.application.choisir_morceau()
+
+        # Verification que le tableau reste vide
+        self.assertEqual(
+            len(self.application.tableau.get_children()),
+            0
+        )
+
+    def test_choisir_morceau_valide(self):
+        # Simulation de la selection d'un fichier MP3
+        from unittest.mock import patch, Mock
+
+        chemin = os.path.abspath("musique_test.mp3")
+
+        morceau = Mock()
+        morceau.title = "Musique test"
+        morceau.artist = "Artiste test"
+        morceau.album = "Album test"
+        morceau.duration = 125
+
+        with patch(
+            "gui.gui.filedialog.askopenfilename",
+            return_value=chemin
+        ), patch(
+            "gui.gui.extract_metadata",
+            return_value=morceau
+        ):
+            self.application.choisir_morceau()
+
+        # Verification de la presence du morceau
+        lignes = self.application.tableau.get_children()
+
+        self.assertEqual(len(lignes), 1)
+
+        self.assertEqual(
+            self.application.tableau.item(lignes[0], "text"),
+            "musique_test.mp3"
+        )
+        
 
 if __name__ == "__main__":
     unittest.main()
