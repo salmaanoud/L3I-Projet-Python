@@ -13,11 +13,13 @@
 - Extraction des métadonnées MP3 et FLAC (`metadata.py`).
 - Développement de l'interface en ligne de commande (`cli.py`) avec les options `-f`, `-d`, `-o` et `-h`.
 - Gestion des erreurs dans l'interface en ligne de commande.
+-  Création de trente-six tests automatiques : classe `Track`, extraction des métadonnées et interface en ligne de commande (`test_track.py`, `test_metadata.py`, `test_cli.py`).
 
 ### Ines LAIFAOUI
 - Développement de l'exploration récursive des dossiers (`explorateur.py`).
 - Vérification des extensions et des types MIME des fichiers MP3 et FLAC.
 - Développement de la génération, de la lecture et de la validation des playlists XSPF (`playlist_xspf.py`).
+- Création de trente-sept tests automatiques : exploration des dossiers et playlists XSPF (`test_explorateur.py`, `test_playlist_xspf.py`).
 
 ### Salma ANOUD
 - Développement de l'interface graphique avec Tkinter (`gui.py`).
