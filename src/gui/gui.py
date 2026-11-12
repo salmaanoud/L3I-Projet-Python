@@ -1,17 +1,13 @@
 """
-Module gui
-==========
+Module : Interface graphique
 
-Interface graphique du gestionnaire de fichiers musicaux MP3 et FLAC.
+Rôle :
+    Fournir une interface graphique Tkinter pour le gestionnaire
+    de fichiers musicaux MP3 et FLAC.
 
-Ce module permet :
-- de choisir un dossier contenant des fichiers musicaux ;
-- de choisir directement un fichier MP3 ou FLAC ;
-- de parcourir son arborescence et ses sous-dossiers ;
-- d'afficher les metadonnees des morceaux ;
-- de generer une playlist au format XSPF.
-
-L'interface est realisee avec la bibliotheque tkinter.
+    L'interface permet de choisir un dossier ou un morceau,
+    de parcourir une arborescence musicale, d'afficher les
+    métadonnées et de générer une playlist au format XSPF.
 """
 
 import tkinter as tk
@@ -30,37 +26,38 @@ from library.playlist_xspf import generer_playlist_par_defaut
 
 class MusicGUI:
     """
-    Interface graphique de gestion des fichiers MP3 et FLAC.
+    Rôle :
+        Représenter l'interface graphique du gestionnaire musical.
 
-    Cette classe permet d'explorer une arborescence de fichiers,
-    d'afficher les metadonnees musicales dans un tableau
-    et de generer des playlists au format XSPF.
+        Cette classe permet de parcourir les fichiers MP3 et FLAC,
+        d'afficher leurs métadonnées et de générer des playlists XSPF.
 
-    Attributes:
-        fenetre (tk.Tk): Fenetre principale de l'application.
-        tableau (ttk.Treeview): Arborescence des fichiers musicaux.
-        cadre_tableau (ttk.Frame): Conteneur du tableau.
-        barre_horizontale (ttk.Scrollbar): Barre de defilement.
-        zone_infos (ttk.LabelFrame): Zone des metadonnees.
+    Attributs :
+        fenetre : Fenêtre principale Tkinter.
+        tableau : Arborescence des fichiers musicaux.
+        cadre_tableau : Conteneur du tableau.
+        barre_horizontale : Barre de défilement horizontale.
+        zone_infos : Zone d'affichage des métadonnées.
     """
 
     def __init__(self, fenetre):
         """
-        Initialise la fenetre et les composants graphiques.
+        Rôle :
+            Initialiser la fenêtre principale et les composants graphiques.
 
-        Args:
-            fenetre (tk.Tk): Fenetre principale tkinter.
+        Arguments :
+            fenetre (tk.Tk) : Fenêtre principale de l'application.
 
-        Returns:
-            None
+        Valeur renvoyée :
+            Aucune.
         """
         self.fenetre = fenetre
 
-        # Configuration de la fenetre
+        # Configuration de la fenêtre
         self.fenetre.title("Gestionnaire de musique MP3/FLAC")
         self.fenetre.geometry("900x600")
 
-        # Creation du bouton pour choisir un dossier
+        # Création du bouton pour choisir un dossier
         self.bouton_dossier = tk.Button(
             self.fenetre,
             text="Choisir un dossier",
@@ -76,7 +73,7 @@ class MusicGUI:
         )
         self.bouton_morceau.pack(pady=5)
 
-        # Bouton pour generer la playlist par defaut
+        # Bouton pour générer la playlist par défaut
         self.bouton_playlist = tk.Button(
             self.fenetre,
             text="Generer la playlist par defaut",
@@ -84,7 +81,7 @@ class MusicGUI:
         )
         self.bouton_playlist.pack(pady=5)
 
-        # Creation du conteneur pour le tableau
+        # Création du conteneur pour le tableau
         self.cadre_tableau = ttk.Frame(self.fenetre)
         self.cadre_tableau.pack(
             fill="both",
@@ -93,14 +90,14 @@ class MusicGUI:
             pady=10
         )
 
-        # Creation de l'arborescence des fichiers musicaux
+        # Création de l'arborescence des fichiers musicaux
         self.tableau = ttk.Treeview(
             self.cadre_tableau,
             columns=("format", "titre", "artiste", "album", "duree"),
             show="tree headings"
         )
 
-        # Definition des colonnes
+        # Définition des colonnes
         self.tableau.heading("#0", text="Nom du fichier / Dossier")
         self.tableau.heading("format", text="Format")
         self.tableau.heading("titre", text="Titre")
@@ -116,7 +113,7 @@ class MusicGUI:
         self.tableau.column("album", width=150, minwidth=100)
         self.tableau.column("duree", width=70, minwidth=60)
 
-        # Barre de defilement horizontale
+        # Barre de défilement horizontale
         self.barre_horizontale = ttk.Scrollbar(
             self.cadre_tableau,
             orient="horizontal",
@@ -132,20 +129,20 @@ class MusicGUI:
         # Affichage du tableau
         self.tableau.pack(fill="both", expand=True)
 
-        # Detection de la selection d'un morceau
+        # Détection de la sélection d'un morceau
         self.tableau.bind(
             "<<TreeviewSelect>>",
             self.afficher_metadonnees
         )
 
-        # Creation de la zone des metadonnees
+        # Création de la zone des métadonnées
         self.zone_infos = ttk.LabelFrame(
             self.fenetre,
             text="Informations du morceau"
         )
         self.zone_infos.pack(fill="x", padx=20, pady=10)
 
-        # Creation des champs d'informations
+        # Création des champs d'informations
         self.label_titre = ttk.Label(
             self.zone_infos,
             text="Titre :"
@@ -172,13 +169,17 @@ class MusicGUI:
 
     def choisir_morceau(self):
         """
-        Permet de choisir directement un fichier MP3 ou FLAC.
+        Rôle :
+            Permettre à l'utilisateur de choisir un fichier MP3 ou FLAC.
 
-        Affiche le fichier choisi dans le tableau, puis ses metadonnees
-        dans la zone d'informations.
+            Le fichier sélectionné est affiché dans le tableau
+            avec ses métadonnées.
 
-        Returns:
-            None
+        Arguments :
+            Aucun.
+
+        Valeur renvoyée :
+            Aucune.
         """
         fichier = filedialog.askopenfilename(
             title="Choisir un morceau",
@@ -192,7 +193,7 @@ class MusicGUI:
         if not fichier:
             return
 
-        # Recuperation des metadonnees du morceau
+        # Récupération des métadonnées du morceau
         try:
             morceau = extract_metadata(fichier)
             titre = morceau.title or ""
@@ -230,17 +231,18 @@ class MusicGUI:
 
     def choisir_dossier(self):
         """
-        Ouvre une fenetre de selection de dossier.
+        Rôle :
+            Permettre à l'utilisateur de sélectionner un dossier musical.
 
-        Recherche les fichiers MP3 et FLAC dans le dossier choisi
-        et ses sous-dossiers, puis les affiche dans une arborescence
-        avec leurs metadonnees.
+            Rechercher les fichiers MP3 et FLAC dans le dossier
+            et ses sous-dossiers, puis afficher leur arborescence
+            et leurs métadonnées dans le tableau.
 
-        Les anciennes lignes du tableau sont supprimees avant
-        l'affichage des nouveaux fichiers.
+        Arguments :
+            Aucun.
 
-        Returns:
-            None
+        Valeur renvoyée :
+            Aucune.
         """
         dossier = filedialog.askdirectory()
 
@@ -252,7 +254,7 @@ class MusicGUI:
             for ligne in self.tableau.get_children():
                 self.tableau.delete(ligne)
 
-            # Creation du dossier principal
+            # Création du dossier principal
             racine = self.tableau.insert(
                 "",
                 "end",
@@ -260,7 +262,7 @@ class MusicGUI:
                 open=True
             )
 
-            # Dictionnaire des dossiers deja crees
+            # Dictionnaire des dossiers déjà créés
             dossiers = {".": racine}
 
             # Ajout des fichiers dans l'arborescence
@@ -271,7 +273,7 @@ class MusicGUI:
                 parent = racine
                 chemin_dossier = "."
 
-                # Creation des sous-dossiers
+                # Création des sous-dossiers
                 for nom_dossier in parties[:-1]:
                     chemin_dossier = os.path.join(
                         chemin_dossier,
@@ -288,11 +290,11 @@ class MusicGUI:
 
                     parent = dossiers[chemin_dossier]
 
-                # Recuperation du nom et du format
+                # Récupération du nom et du format
                 nom = os.path.basename(fichier)
                 format_fichier = os.path.splitext(fichier)[1].lower()
 
-                # Recuperation des metadonnees du fichier
+                # Récupération des métadonnées du fichier
                 try:
                     morceau = extract_metadata(fichier)
 
@@ -311,7 +313,7 @@ class MusicGUI:
                     album = ""
                     duree = ""
 
-                # Ajout du fichier musical avec ses metadonnees
+                # Ajout du fichier musical avec ses métadonnées
                 self.tableau.insert(
                     parent,
                     "end",
@@ -326,22 +328,24 @@ class MusicGUI:
                     )
                 )
 
-            # Reinitialisation des informations
+            # Réinitialisation des informations
             self.effacer_metadonnees()
 
     def generer_playlist(self):
         """
-        Genere une playlist XSPF a partir d'un dossier choisi.
+        Rôle :
+            Générer une playlist au format XSPF à partir d'un dossier.
 
-        Ouvre une fenetre pour selectionner le dossier musical,
-        puis une fenetre "Enregistrer sous" pour choisir le nom
-        et l'emplacement de la playlist.
+            Permettre à l'utilisateur de choisir le dossier musical
+            et l'emplacement d'enregistrement de la playlist.
 
-        Affiche un message de confirmation si la generation
-        reussit, ou un message d'erreur dans le cas contraire.
+            Afficher un message de confirmation ou d'erreur.
 
-        Returns:
-            None
+        Arguments :
+            Aucun.
+
+        Valeur renvoyée :
+            Aucune.
         """
         dossier = filedialog.askdirectory(
             title="Choisir un dossier pour la playlist"
@@ -362,7 +366,7 @@ class MusicGUI:
             if not chemin_sortie:
                 return
 
-            # Generation de la playlist a l'emplacement choisi
+            # Génération de la playlist à l'emplacement choisi
             chemin_playlist = generer_playlist_par_defaut(
                 dossier,
                 chemin_sortie
@@ -381,13 +385,17 @@ class MusicGUI:
 
     def effacer_metadonnees(self):
         """
-        Reinitialise les informations du morceau selectionne.
+        Rôle :
+            Réinitialiser les informations du morceau sélectionné.
 
-        Remet les champs titre, artiste, album et duree
-        a leurs valeurs initiales.
+            Remettre les champs titre, artiste, album et durée
+            à leurs valeurs initiales.
 
-        Returns:
-            None
+        Arguments :
+            Aucun.
+
+        Valeur renvoyée :
+            Aucune.
         """
         self.label_titre.config(text="Titre :")
         self.label_artiste.config(text="Artiste :")
@@ -396,26 +404,29 @@ class MusicGUI:
 
     def afficher_metadonnees(self, event):
         """
-        Affiche les metadonnees du fichier musical selectionne.
+        Rôle :
+            Afficher les métadonnées du fichier musical sélectionné.
 
-        Verifie que l'element selectionne est un fichier,
-        extrait ses metadonnees et met a jour les champs
-        de la zone d'informations.
+            Vérifier que l'élément sélectionné est un fichier,
+            puis afficher son titre, son artiste, son album
+            et sa durée dans la zone d'informations.
 
-        Si un dossier est selectionne, les champs sont effaces.
+            Effacer les informations si un dossier est sélectionné.
 
-        Args:
-            event (tkinter.Event): Evenement de selection du tableau.
+        Arguments :
+            event (tkinter.Event) :
+                Événement déclenché lors de la sélection
+                d'un élément du tableau.
 
-        Returns:
-            None
+        Valeur renvoyée :
+            Aucune.
         """
         selection = self.tableau.selection()
 
         if selection:
             chemin = selection[0]
 
-            # Verification que la selection est un fichier musical
+            # Vérification que la sélection est un fichier musical
             if not os.path.isfile(chemin):
                 self.effacer_metadonnees()
                 return
@@ -423,7 +434,7 @@ class MusicGUI:
             try:
                 morceau = extract_metadata(chemin)
 
-                # Affichage des informations dans la fenetre
+                # Affichage des informations dans la fenêtre
                 self.label_titre.config(
                     text="Titre : " + str(morceau.title)
                 )
@@ -449,14 +460,14 @@ class MusicGUI:
                 messagebox.showerror("Erreur", str(erreur))
 
 
-# Lancement de l'application uniquement en execution directe
+# Lancement de l'application uniquement en exécution directe
 if __name__ == "__main__":
 
-    # Creation de la fenetre principale
+    # Création de la fenêtre principale
     fenetre = tk.Tk()
 
-    # Creation de l'objet interface graphique
+    # Création de l'objet interface graphique
     application = MusicGUI(fenetre)
 
-    # Affichage de la fenetre
+    # Affichage de la fenêtre
     fenetre.mainloop()
