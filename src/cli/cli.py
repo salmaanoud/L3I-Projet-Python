@@ -1,6 +1,11 @@
-"""Interface en ligne de commande (CLI) : extraction de métadonnées et playlists.
+"""
+cli.py
+Role : interface en ligne de commande (CLI) du projet : affichage des
+       métadonnées d'un fichier MP3/FLAC, analyse récursive d'un dossier et
+       génération d'une playlist XSPF. Réutilise la bibliothèque
+       (metadata.py, explorateur.py, playlist_xspf.py).
 
-Exemples :
+Execution :
     python3 cli.py -h
     python3 cli.py -f music.mp3
     python3 cli.py -d ./music/
@@ -21,13 +26,31 @@ from library.playlist_xspf import generer_playlist_par_defaut  # noqa: E402
 
 
 def format_duree(secondes):
-    """Convertit une durée en secondes en texte mm:ss."""
+    """
+    Role : convertit une durée en secondes en texte au format mm:ss.
+
+    Arguments :
+        secondes (float) : durée en secondes
+
+    Valeur renvoyee :
+        str : la durée arrondie à la seconde, par exemple "03:34"
+    """
     total = int(round(secondes))
     return f"{total // 60:02d}:{total % 60:02d}"
 
 
 def afficher_track(track):
-    """Affiche les métadonnées d'un Track dans la console."""
+    """
+    Role : affiche dans la console les métadonnées d'un morceau (fichier,
+    format, titre, artiste, album, durée). Un champ vide est affiché
+    "(inconnu)".
+
+    Arguments :
+        track (Track) : le morceau à afficher
+
+    Valeur renvoyee :
+        None
+    """
     print(f"Fichier : {track.path}")
     print(f"Format  : {track.format.upper()}")
     print(f"Titre   : {track.title or '(inconnu)'}")
@@ -37,6 +60,18 @@ def afficher_track(track):
 
 
 def creer_parser():
+    """
+    Role : construit l'analyseur de la ligne de commande (argparse) avec
+    les options -h, -f, -d et -o. Les options -f (fichier) et -d
+    (dossier) sont exclusives l'une de l'autre, comme demandé dans le
+    sujet.
+
+    Arguments :
+        aucun
+
+    Valeur renvoyee :
+        argparse.ArgumentParser : l'analyseur prêt à lire les arguments
+    """
     parser = argparse.ArgumentParser(
         prog="cli.py",
         description="Analyse de fichiers audio MP3/FLAC et génération de playlists XSPF.",
@@ -46,6 +81,7 @@ def creer_parser():
         "-h", "--help", action="help",
         help="affiche cette aide et quitte",
     )
+    # un seul des deux à la fois : argparse refuse -f et -d ensemble
     entree = parser.add_mutually_exclusive_group()
     entree.add_argument(
         "-f", "--file", metavar="FICHIER",
@@ -63,6 +99,17 @@ def creer_parser():
 
 
 def traiter_fichier(chemin):
+    """
+    Role : option -f. Lit les métadonnées d'un fichier MP3 ou FLAC et les
+    affiche. Si le fichier n'existe pas ou n'est pas lisible, affiche un
+    message d'erreur sur la sortie d'erreur.
+
+    Arguments :
+        chemin (str) : chemin du fichier à analyser
+
+    Valeur renvoyee :
+        int : 0 si tout s'est bien passé, 1 en cas d'erreur
+    """
     if not os.path.isfile(chemin):
         print(f"Erreur : le fichier « {chemin} » n'existe pas.", file=sys.stderr)
         return 1
@@ -76,6 +123,20 @@ def traiter_fichier(chemin):
 
 
 def traiter_dossier(dossier, sortie):
+    """
+    Role : option -d. Explore un dossier et tous ses sous-dossiers,
+    affiche les métadonnées de chaque MP3/FLAC trouvé, puis génère une
+    playlist XSPF si un fichier de sortie est demandé (option -o). Un
+    fichier illisible est signalé ("Ignoré") sans arrêter le programme.
+
+    Arguments :
+        dossier (str) : chemin du dossier à explorer
+        sortie (str ou None) : chemin du fichier .xspf à créer, ou None
+            pour ne pas générer de playlist
+
+    Valeur renvoyee :
+        int : 0 si tout s'est bien passé, 1 si le dossier n'existe pas
+    """
     if not os.path.isdir(dossier):
         print(f"Erreur : le dossier « {dossier} » n'existe pas.", file=sys.stderr)
         return 1
@@ -99,6 +160,20 @@ def traiter_dossier(dossier, sortie):
 
 
 def main(argv=None):
+    """
+    Role : point d'entrée du mode console. Lit la ligne de commande, vérifie
+    les combinaisons d'options, puis lance le traitement d'un fichier (-f)
+    ou d'un dossier (-d). Sans paramètre, affiche une erreur qui propose
+    l'aide (-h).
+
+    Arguments :
+        argv (list[str] ou None) : arguments de la ligne de commande
+            (par défaut ceux de sys.argv ; une liste permet de tester la
+            fonction sans passer par le terminal)
+
+    Valeur renvoyee :
+        int : code de sortie du programme (0 si tout s'est bien passé)
+    """
     parser = creer_parser()
     args = parser.parse_args(argv)
 
