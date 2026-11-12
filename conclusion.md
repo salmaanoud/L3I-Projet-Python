@@ -12,9 +12,8 @@ Groupe : LAIFAOUI Ines, SIMYA Meriem, ANOUD Salma
 - Interface en ligne de commande : options `-f`, `-d`, `-o` et `-h` (Meriem)
 - Interface graphique : choix d'un dossier ou d'un morceau, tableau des
   morceaux, panneau d'informations, génération de la playlist (Salma)
-- Tests automatiques (unittest) des modules d'exploration et de playlist :
-  37 tests, qui passent sous Linux et Windows [À VÉRIFIER : ajouter les
-  tests de Meriem et Salma une fois lancés ensemble]
+- Tests automatiques (unittest) de tous les modules (track, metadata, CLI,
+  exploration, playlist, GUI) : 79 tests, qui passent sous Linux et Windows
 
 ## Difficultés surmontées
 
@@ -38,22 +37,20 @@ Groupe : LAIFAOUI Ines, SIMYA Meriem, ANOUD Salma
 
 ## Items commencés
 
-- Lecture audio, modification des tags,
-  pochettes, glisser-déposer, API web. Indiquer ceux qui sont réellement
-  commencés, sinon supprimer cette section.]
-- Rédaction de la documentation au format demandé (rôle, arguments, valeur
-  renvoyée) : faite pour les modules d'exploration et de playlist, ainsi que
-  pour leurs tests.
+- Rédaction de la documentation Doxygen du code existant (bibliothèque :
+  track, metadata, explorateur, playlist_xspf ; CLI ; GUI) : faite. Elle
+  sera complétée au fur et à mesure des nouvelles fonctionnalités, puis
+  générée une seule fois en fin de projet.
 
 ## Items restants
 
 - Lecture d'un morceau ou d'une playlist, en console et en graphique
+- Réouverture d'une playlist enregistrée dans la GUI
 - Modification et sauvegarde des tags
 - Récupération des informations complètes d'un album et des paroles via une
   API web (console et graphique)
 - Extraction, téléchargement et sauvegarde des pochettes
 - Glisser-déposer pour composer une playlist dans la GUI
 - Corrections de l'affichage de la colonne Format dans la GUI
-- Documentation générée (pdoc) pour tout le projet, rapport, README,
+- Documentation générée (Doxygen) pour tout le projet, rapport, README (à jour),
   vidéo de démonstration, diaporama
-- Tests des autres modules (CLI, GUI, métadonnées)
