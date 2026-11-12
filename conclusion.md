@@ -38,7 +38,7 @@ Groupe : LAIFAOUI Ines, SIMYA Meriem, ANOUD Salma
 
 ## Items commencés
 
-- [À VÉRIFIER avec Meriem et Salma : lecture audio, modification des tags,
+- Lecture audio, modification des tags,
   pochettes, glisser-déposer, API web. Indiquer ceux qui sont réellement
   commencés, sinon supprimer cette section.]
 - Rédaction de la documentation au format demandé (rôle, arguments, valeur
